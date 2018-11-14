@@ -49,18 +49,18 @@ public class TakeScreenshot : MonoBehaviour {
     }
 
     public RectTransform screen;
-    public static float PERCENT = .5f;
-    public RectTransform rectangle;
-    public RawImage[] recentImages = new RawImage[3];
-    public List<ImageWithMetadata> allImages = new List<ImageWithMetadata>();
-    public RawImage LastImage;
+    public static float PERCENT = .5f; // Percent of the width and height of the screen that the rectangle occupies
+    public RectTransform rectangle; // The rectangle that outlines what area is being taken a photo of
+    public RawImage[] recentImages = new RawImage[3]; // The last 3 images which are shown
+    public List<ImageWithMetadata> allImages = new List<ImageWithMetadata>(); // All of the images taken, stored in a list
+    public RawImage LastImage; // The last image that was taken, which displays immediately after taking the screenshot
 
     public GameObject confirmButtonPrefab;
     public GameObject deleteButtonPrefab;
     public GameObject featureTogglePrefab;
 
     public bool pressed = false;
-    // Should only be applied to the CameraPanel which is rectangle
+    
     public void Start()
     {
         LastImage.color = new Vector4(0, 0, 0, 0);
@@ -76,17 +76,17 @@ public class TakeScreenshot : MonoBehaviour {
 
     public void ChangeSize(RectTransform r)
     {
-        if (PERCENT == .7f)
+        if (PERCENT == .5f)
+        {
+            PERCENT = .2f;
+        }
+        else if (PERCENT == .2f)
         {
             PERCENT = .3f;
         }
-        else if (PERCENT == .3f)
-        {
-            PERCENT = .5f;
-        }
         else
         {
-            PERCENT = .7f;
+            PERCENT = .5f;
         }
 
         //PERCENT = PERCENT; // Currently just allowing for PERCENT_Y to = PERCENT_X
@@ -138,17 +138,23 @@ public class TakeScreenshot : MonoBehaviour {
     {
         pressed = true;
         byte[] imageBytes = (byte[]) parms[0];
-        string[] features = (string[]) parms[1];
+        Toggle[] features = (Toggle[]) parms[1];
         string name = "";
-        for(int i = 0; i < features.Length; i++)
+        ImageWithMetadata imageValue = new ImageWithMetadata(imageBytes);
+        for (int i = 0; i < features.Length; i++)
         {
-            name = name + features[i] + "-";
+            if (features[i].isOn)
+            {
+                string f = features[i].GetComponentInChildren<Text>().text;
+                name = name + f + "-";
+                //Keyword key = new Keyword(f);
+                //imageValue.Keywords.Add(key);
+            }
         }
 
         string timestamp = System.DateTime.Now.ToString("MM-dd-yyy-HH-mm-ss");
-        string fileName = name + "Screenshot" + timestamp + ".png";
-        string pathToSave = Application.dataPath + "/Images/" + fileName;
-        ImageWithMetadata imageValue = new ImageWithMetadata(imageBytes);
+        string fileName = name + timestamp + ".png";
+        string pathToSave = Application.dataPath + "/Images/" + fileName;     
         int w = (int)(Screen.width * PERCENT);
         int h = (int)(Screen.height * PERCENT);
         AddImage(imageValue, imageBytes, w, h);
@@ -180,16 +186,12 @@ public class TakeScreenshot : MonoBehaviour {
         Debug.Log("About to add a button");
 
         StartCoroutine("PickFeatures", b);
-        // Display a save and cancel button
-        // Display the features as toggles
-        // If they hit cancel -> return null
-        // If they hit save:
-        // Add the selected features to img.feature
         return "";
     }
 
     IEnumerator PickFeatures(byte[] img)
     {
+        string[] featureNames = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
         // Add confirm button
         GameObject goButton = Instantiate(confirmButtonPrefab);
         goButton.transform.SetParent(screen, false);
@@ -204,21 +206,28 @@ public class TakeScreenshot : MonoBehaviour {
         deleteButton.onClick.AddListener(() => DeletePhoto());
 
         // Add the features
-        GameObject feature = Instantiate(featureTogglePrefab);
-        feature.transform.SetParent(screen, false);
-        feature.transform.localScale = new Vector3(1, 1, 1);
-        Toggle featureToggle = feature.GetComponent<Toggle>();
-        /*for (int i = 0; i < 5; i++)
+
+        //GameObject feature = Instantiate(featureTogglePrefab);
+        //feature.transform.SetParent(screen, false);
+        //feature.transform.localScale = new Vector3(1, 1, 1);
+        //Toggle featureToggle = feature.GetComponent<Toggle>();
+
+        GameObject[] featureObjs = new GameObject[10];
+        Toggle[] featureToggles = new Toggle[10];
+        float distBetween = -1 * (Screen.height / 10);
+        for (int i = 0; i < 10; i++)
         {
-            features[i] = Instantiate(featureTogglePrefab);
-            features[i].transform.SetParent(screen, false);
-            features[i].transform.localScale = new Vector3(1, 1, 1);
-            featureToggles[i] = features[i].GetComponent<Toggle>();
-        }*/
+            featureObjs[i] = Instantiate(featureTogglePrefab);
+            featureObjs[i].transform.SetParent(screen, false);
+            featureObjs[i].transform.localScale = new Vector3(1, 1, 1);
+            featureObjs[i].transform.localPosition = featureObjs[i].transform.localPosition + new Vector3(0, distBetween*(i + (float).5), 0);
+            featureToggles[i] = featureObjs[i].GetComponent<Toggle>();
+            featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i];
+        }
 
         // TODO: Display and add features
-        string[] featuresArr = { "rock", "grass" };
-        object[] parms = new object[2] { img, featuresArr }; // TODO: Change features to actual keywords
+        //string[] featuresArr = { "rock", "grass" };
+        object[] parms = new object[2] { img, featureToggles }; // TODO: Change features to actual keywords
         confirmButton.onClick.AddListener(() => StartCoroutine("ConfirmPhoto", parms));
 
         LastImage.color = new Vector4(255, 255, 255, 255); // Make visible
@@ -228,6 +237,13 @@ public class TakeScreenshot : MonoBehaviour {
         Destroy(goButton);
         Destroy(deleteButton);
         Destroy(goButton2);
+        for (int i = 0; i < 10; i++)
+        {
+            Destroy(featureObjs[i]);
+            Destroy(featureToggles[i]);
+        }
+
+        //Destroy(feature);
         LastImage.color = new Vector4(0, 0, 0, 0); // make transparent
     }
 
