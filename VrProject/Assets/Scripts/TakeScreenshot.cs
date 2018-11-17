@@ -49,7 +49,8 @@ public class TakeScreenshot : MonoBehaviour {
     }
 
     public RectTransform screen;
-    public static float PERCENT = .5f; // Percent of the width and height of the screen that the rectangle occupies
+    public static float PERCENTW = .5f; // Percent of the width of the screen that the rectangle occupies
+    public static float PERCENTH = .5f; // Percent of the height of the screen that the rectangle occupies
     public RectTransform rectangle; // The rectangle that outlines what area is being taken a photo of
     public RawImage[] recentImages = new RawImage[3]; // The last 3 images which are shown
     public List<ImageWithMetadata> allImages = new List<ImageWithMetadata>(); // All of the images taken, stored in a list
@@ -70,26 +71,43 @@ public class TakeScreenshot : MonoBehaviour {
 
     private void SetRectangle(RectTransform r)
     {
-        r.localScale = new Vector2(PERCENT, PERCENT);
+        r.localScale = new Vector2(PERCENTW, PERCENTH);
         //transform.localScale = new Vector2(PERCENT_X, PERCENT_Y);
     }
 
-    public void ChangeSize(RectTransform r)
+    public void ChangeWidthSize(RectTransform r)
     {
-        if (PERCENT == .5f)
+        if (PERCENTW == .5f)
         {
-            PERCENT = .2f;
+            PERCENTW = .2f;
         }
-        else if (PERCENT == .2f)
+        else if (PERCENTW == .2f)
         {
-            PERCENT = .3f;
+            PERCENTW = .3f;
         }
         else
         {
-            PERCENT = .5f;
+            PERCENTW = .5f;
         }
 
-        //PERCENT = PERCENT; // Currently just allowing for PERCENT_Y to = PERCENT_X
+        SetRectangle(r);
+    }
+
+    public void ChangeHeightSize(RectTransform r)
+    {
+        if (PERCENTH == .5f)
+        {
+            PERCENTH = .2f;
+        }
+        else if (PERCENTH == .2f)
+        {
+            PERCENTH = .3f;
+        }
+        else
+        {
+            PERCENTH = .5f;
+        }
+
         SetRectangle(r);
     }
 
@@ -103,23 +121,28 @@ public class TakeScreenshot : MonoBehaviour {
     IEnumerator CaptureMiddle()
     {
         yield return new WaitForEndOfFrame();
-        int w = (int)(Screen.width * PERCENT);
-        int h = (int)(Screen.height * PERCENT);
+        int w = (int)(Screen.width * PERCENTW);
+        int h = (int)(Screen.height * PERCENTH);
         float startX, startY, finishX, finishY;
 
-        if (PERCENT > 0f && PERCENT < 1f)
+        if (PERCENTW > 0f && PERCENTW < 1f)
         {
-            startX = (.5f - (PERCENT * .5f)) * Screen.width;
+            startX = (.5f - (PERCENTW * .5f)) * Screen.width;
             finishX = w + startX;
-
-            startY = (.5f - (PERCENT * .5f)) * Screen.height;
-            finishY = h + startY;
         }
         else
         {
             startX = 0;
             finishX = Screen.width;
+        }
 
+        if (PERCENTH > 0f && PERCENTH < 1f)
+        {
+            startY = (.5f - (PERCENTH * .5f)) * Screen.height;
+            finishY = h + startY;
+        }
+        else
+        {
             startY = 0;
             finishY = Screen.height;
         }
@@ -155,8 +178,8 @@ public class TakeScreenshot : MonoBehaviour {
         string timestamp = System.DateTime.Now.ToString("MM-dd-yyy-HH-mm-ss");
         string fileName = name + timestamp + ".png";
         string pathToSave = Application.dataPath + "/Images/" + fileName;     
-        int w = (int)(Screen.width * PERCENT);
-        int h = (int)(Screen.height * PERCENT);
+        int w = (int)(Screen.width * PERCENTW);
+        int h = (int)(Screen.height * PERCENTH);
         AddImage(imageValue, imageBytes, w, h);
         DisplayImages(recentImages);
         WWW wait = new WWW(fileName);
@@ -226,7 +249,6 @@ public class TakeScreenshot : MonoBehaviour {
         }
 
         // TODO: Display and add features
-        //string[] featuresArr = { "rock", "grass" };
         object[] parms = new object[2] { img, featureToggles }; // TODO: Change features to actual keywords
         confirmButton.onClick.AddListener(() => StartCoroutine("ConfirmPhoto", parms));
 
