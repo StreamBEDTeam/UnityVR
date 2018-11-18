@@ -3,7 +3,14 @@ guid: 04c8d2ffcf3fd7b4497f808ee993a180
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - screen: {instanceID: 0}
+  - rectangle: {instanceID: 0}
+  - LastImage: {instanceID: 0}
+  - confirmButtonPrefab: {instanceID: 0}
+  - deleteButtonPrefab: {instanceID: 0}
+  - featureTogglePrefab: {instanceID: 0}
+  - taggedObject: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
