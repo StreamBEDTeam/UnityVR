@@ -274,8 +274,8 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
-    <Reference Include="StreamBED.Backend (2)">
-      <HintPath>C:/Users/cpetr/VR/VrProject/Assets/StreamBED.Backend (2).dll</HintPath>
+    <Reference Include="StreamBED.Backend">
+      <HintPath>C:/Users/cpetr/VR/VrProject/Assets/StreamBED.Backend.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Analytics">
       <HintPath>C:/Users/cpetr/AppData/Local/Unity/cache/packages/packages.unity.com/com.unity.analytics@2.0.16/UnityEngine.Analytics.dll</HintPath>

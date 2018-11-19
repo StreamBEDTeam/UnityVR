@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using StreamBED.Backend.Helper;
+using StreamBED.Backend.Models.ProtocolModels;
 
 public class TakeScreenshot : MonoBehaviour {
 
@@ -154,7 +155,7 @@ public class TakeScreenshot : MonoBehaviour {
         byte[] imageBytes = img.EncodeToPNG();
         // Display the image and allow the person to apply features to the fileName and then 
         string name = TagImage(imageBytes, w + 10, h + 10);
-        Object.Destroy(img);
+        Destroy(img);
     }
 
     IEnumerator ConfirmPhoto(object[] parms)
@@ -162,6 +163,7 @@ public class TakeScreenshot : MonoBehaviour {
         pressed = true;
         byte[] imageBytes = (byte[]) parms[0];
         Toggle[] features = (Toggle[]) parms[1];
+        Keyword[] keywords = (Keyword[]) parms[2];
         string name = "";
         ImageWithMetadata imageValue = new ImageWithMetadata(imageBytes);
         for (int i = 0; i < features.Length; i++)
@@ -170,8 +172,7 @@ public class TakeScreenshot : MonoBehaviour {
             {
                 string f = features[i].GetComponentInChildren<Text>().text;
                 name = name + f + "-";
-                //Keyword key = new Keyword(f);
-                //imageValue.Keywords.Add(key);
+                imageValue.AddKeyword(keywords[i]);
             }
         }
 
@@ -180,7 +181,7 @@ public class TakeScreenshot : MonoBehaviour {
         string pathToSave = Application.dataPath + "/Images/" + fileName;     
         int w = (int)(Screen.width * PERCENTW);
         int h = (int)(Screen.height * PERCENTH);
-        AddImage(imageValue, imageBytes, w, h);
+        AddImage(imageValue, w, h);
         DisplayImages(recentImages);
         WWW wait = new WWW(fileName);
         while (!wait.isDone) ;
@@ -189,13 +190,14 @@ public class TakeScreenshot : MonoBehaviour {
         System.IO.File.WriteAllBytes(pathToSave, imageBytes);
         while (!wait.isDone) ;
         yield return wait;
-        Debug.Log("Confirm!");
+        Debug.Log("Confirmed");
+        this.PrintAllImages();
     }
 
     public void DeletePhoto()
     {
         pressed = true;
-        Debug.Log("Delete!");
+        Debug.Log("Deleted");
     }
 
     public string TagImage(byte[] b, int w, int h)
@@ -206,7 +208,6 @@ public class TakeScreenshot : MonoBehaviour {
         imgTexture.LoadImage(b);
         LastImage.texture = imgTexture;
         //button.onClick.AddListener(() => KeepPhoto());
-        Debug.Log("About to add a button");
 
         StartCoroutine("PickFeatures", b);
         return "";
@@ -214,7 +215,11 @@ public class TakeScreenshot : MonoBehaviour {
 
     IEnumerator PickFeatures(byte[] img)
     {
-        string[] featureNames = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
+        Keyword[] bKey = BankStabilityModel.getKeywords();
+        Keyword[] eKey = EpifaunalSubstrateModel.getKeywords();
+        Keyword[] featureNames = new Keyword[bKey.Length + eKey.Length];
+        bKey.CopyTo(featureNames, 0);
+        eKey.CopyTo(featureNames, bKey.Length);
         // Add confirm button
         GameObject goButton = Instantiate(confirmButtonPrefab);
         goButton.transform.SetParent(screen, false);
@@ -229,27 +234,21 @@ public class TakeScreenshot : MonoBehaviour {
         deleteButton.onClick.AddListener(() => DeletePhoto());
 
         // Add the features
-
-        //GameObject feature = Instantiate(featureTogglePrefab);
-        //feature.transform.SetParent(screen, false);
-        //feature.transform.localScale = new Vector3(1, 1, 1);
-        //Toggle featureToggle = feature.GetComponent<Toggle>();
-
-        GameObject[] featureObjs = new GameObject[10];
-        Toggle[] featureToggles = new Toggle[10];
-        float distBetween = -1 * (Screen.height / 10);
-        for (int i = 0; i < 10; i++)
+        int len = featureNames.Length;
+        GameObject[] featureObjs = new GameObject[len];
+        Toggle[] featureToggles = new Toggle[len];
+        float distBetween = -1 * (Screen.height / len);
+        for (int i = 0; i < len; i++)
         {
             featureObjs[i] = Instantiate(featureTogglePrefab);
             featureObjs[i].transform.SetParent(screen, false);
             featureObjs[i].transform.localScale = new Vector3(1, 1, 1);
             featureObjs[i].transform.localPosition = featureObjs[i].transform.localPosition + new Vector3(0, distBetween*(i + (float).5), 0);
             featureToggles[i] = featureObjs[i].GetComponent<Toggle>();
-            featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i];
+            featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].GetContent();
         }
 
-        // TODO: Display and add features
-        object[] parms = new object[2] { img, featureToggles }; // TODO: Change features to actual keywords
+        object[] parms = new object[3] { img, featureToggles, featureNames };
         confirmButton.onClick.AddListener(() => StartCoroutine("ConfirmPhoto", parms));
 
         LastImage.color = new Vector4(255, 255, 255, 255); // Make visible
@@ -259,13 +258,12 @@ public class TakeScreenshot : MonoBehaviour {
         Destroy(goButton);
         Destroy(deleteButton);
         Destroy(goButton2);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < len; i++)
         {
             Destroy(featureObjs[i]);
             Destroy(featureToggles[i]);
         }
 
-        //Destroy(feature);
         LastImage.color = new Vector4(0, 0, 0, 0); // make transparent
     }
 
@@ -275,11 +273,10 @@ public class TakeScreenshot : MonoBehaviour {
     }
 
     // Auto populate the list of pictures
-    public void AddImage(ImageWithMetadata img, byte[] b, int w, int h)//Image img)
+    public void AddImage(ImageWithMetadata img, int w, int h)//Image img)
     {
         Texture2D imgTexture = new Texture2D(w, h);
-        imgTexture.LoadImage(b);
-        //LastImage.texture = imgTexture;
+        imgTexture.LoadImage(img.GetPhoto());
         if (allImages.Count >= 2)
             recentImages[2].texture = recentImages[1].texture;
 
@@ -287,8 +284,6 @@ public class TakeScreenshot : MonoBehaviour {
             recentImages[1].texture = recentImages[0].texture;
 
         recentImages[0].texture = imgTexture;
-        //LastImage.texture = imgTexture;
-        //LastImage.color = new Vector4(255, 255, 255, 255);
         allImages.Add(img);
     }
 
@@ -308,5 +303,10 @@ public class TakeScreenshot : MonoBehaviour {
             recentImages[2].color = new Vector4(255, 255, 255, 255);
         else
             recentImages[2].color = new Vector4(0,0,0, 0); // Make transparent if no image
+    }
+
+    public void PrintAllImages()
+    {
+        // TODO: Print all images (test to see if allImages is working properly
     }
 }
