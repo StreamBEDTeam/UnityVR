@@ -5,9 +5,11 @@ using UnityEngine.UI;
 using StreamBED.Backend.Helper;
 using StreamBED.Backend.Models.ProtocolModels;
 
-public class TakeScreenshot : MonoBehaviour {
+public class TakeScreenshot : MonoBehaviour
+{
 
-    public class Image {
+    public class Image
+    {
         private byte[] pixels;
         private string pathName;
         private int width;
@@ -45,7 +47,7 @@ public class TakeScreenshot : MonoBehaviour {
 
         public string[] getFeatures()
         {
-            return (string[]) features.ToArray();
+            return (string[])features.ToArray();
         }
     }
 
@@ -61,8 +63,12 @@ public class TakeScreenshot : MonoBehaviour {
     public GameObject deleteButtonPrefab;
     public GameObject featureTogglePrefab;
 
+    public new Camera camera;
+
+    public GameObject taggedObject;
+
     public bool pressed = false;
-    
+
     public void Start()
     {
         LastImage.color = new Vector4(0, 0, 0, 0);
@@ -114,7 +120,46 @@ public class TakeScreenshot : MonoBehaviour {
 
     public void TakeAShot()
     {
+        getTaggedObjectInViewFinder();
         StartCoroutine("CaptureMiddle");
+    }
+
+    public GameObject getTaggedObjectInViewFinder()
+    {
+        Vector3[] vfCorners = new Vector3[4];
+        rectangle.GetWorldCorners(vfCorners);
+        foreach (Vector3 v in vfCorners)
+        {
+            Debug.Log("Viewfinder corner:" + v.ToString());
+        }
+
+        Vector3 taggedObjectCenter = RectTransformUtility.WorldToScreenPoint(camera, taggedObject.transform.position);
+
+        float toW = taggedObject.GetComponent<Renderer>().bounds.size.x;
+        float toH = taggedObject.GetComponent<Renderer>().bounds.size.y;
+
+        float vfLeftX = vfCorners[0].x;
+        float vfRightX = vfCorners[2].x;
+        float vfBottomY = vfCorners[0].y;
+        float vfTopY = vfCorners[1].y;
+
+        float toLeftX = taggedObjectCenter.x - (toW / 2);
+        float toRightX = taggedObjectCenter.x + (toW / 2);
+        float toBottomY = taggedObjectCenter.y - (toH / 2);
+        float toTopY = taggedObjectCenter.y + (toH / 2);
+
+        bool isTaggedObjectContained = toLeftX >= vfLeftX && toRightX <= vfRightX && toBottomY >= vfBottomY && toTopY <= vfTopY;
+
+        if (isTaggedObjectContained)
+        {
+            Debug.Log("TAGGED OBJECT IS CONTAINED!");
+            return taggedObject;
+        }
+        else
+        {
+            Debug.Log("TAGGED OBJECT IS NOT CONTAINED!");
+            return null;
+        }
     }
 
     // Captures the desired part of the screen
@@ -149,6 +194,7 @@ public class TakeScreenshot : MonoBehaviour {
         }
 
         Texture2D img = new Texture2D(w, h, TextureFormat.RGB24, false);
+        Debug.Log("Taking picture of: " + startX + ", " + finishX + ", " + startY + ", " + finishY);
         img.ReadPixels(new Rect(startX, startY, finishX, finishY), 0, 0);
         img.Apply();
         // convert to PNG
@@ -164,6 +210,7 @@ public class TakeScreenshot : MonoBehaviour {
         byte[] imageBytes = (byte[]) parms[0];
         Toggle[] features = (Toggle[]) parms[1];
         Keyword[] keywords = (Keyword[]) parms[2];
+
         string name = "";
         ImageWithMetadata imageValue = new ImageWithMetadata(imageBytes);
         for (int i = 0; i < features.Length; i++)
@@ -178,7 +225,7 @@ public class TakeScreenshot : MonoBehaviour {
 
         string timestamp = System.DateTime.Now.ToString("MM-dd-yyy-HH-mm-ss");
         string fileName = name + timestamp + ".png";
-        string pathToSave = Application.dataPath + "/Images/" + fileName;     
+        string pathToSave = Application.dataPath + "/Images/" + fileName;
         int w = (int)(Screen.width * PERCENTW);
         int h = (int)(Screen.height * PERCENTH);
         AddImage(imageValue, w, h);
@@ -243,7 +290,7 @@ public class TakeScreenshot : MonoBehaviour {
             featureObjs[i] = Instantiate(featureTogglePrefab);
             featureObjs[i].transform.SetParent(screen, false);
             featureObjs[i].transform.localScale = new Vector3(1, 1, 1);
-            featureObjs[i].transform.localPosition = featureObjs[i].transform.localPosition + new Vector3(0, distBetween*(i + (float).5), 0);
+            featureObjs[i].transform.localPosition = featureObjs[i].transform.localPosition + new Vector3(0, distBetween * (i + (float).5), 0);
             featureToggles[i] = featureObjs[i].GetComponent<Toggle>();
             featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].GetContent();
         }
@@ -297,12 +344,12 @@ public class TakeScreenshot : MonoBehaviour {
         if (allImages.Count > 1)
             recentImages[1].color = new Vector4(255, 255, 255, 255);
         else
-            recentImages[1].color = new Vector4(0,0,0, 0); // Make transparent if no image
+            recentImages[1].color = new Vector4(0, 0, 0, 0); // Make transparent if no image
 
         if (allImages.Count > 2)
             recentImages[2].color = new Vector4(255, 255, 255, 255);
         else
-            recentImages[2].color = new Vector4(0,0,0, 0); // Make transparent if no image
+            recentImages[2].color = new Vector4(0, 0, 0, 0); // Make transparent if no image
     }
 
     public void PrintAllImages()
