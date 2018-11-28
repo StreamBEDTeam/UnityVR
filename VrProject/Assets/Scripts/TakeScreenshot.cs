@@ -65,7 +65,7 @@ public class TakeScreenshot : MonoBehaviour
     public GameObject featureTogglePrefab;
     public new Camera camera;
 
-    public GameObject taggedObject;
+    public GameObject[] areasOfInterest;
 
     public bool pressed = false;
 
@@ -120,23 +120,23 @@ public class TakeScreenshot : MonoBehaviour
 
     public void TakeAShot()
     {
-        getTaggedObjectInViewFinder();
+        foreach (GameObject obj in areasOfInterest) {
+            if (IsObjectInViewFinder(obj)) {
+                Debug.Log("Object " + obj.name + " is in viewfinder!");
+            }
+        }
         StartCoroutine("CaptureMiddle");
     }
 
-    public GameObject getTaggedObjectInViewFinder()
-    {
+    public bool IsObjectInViewFinder(GameObject obj) {
         Vector3[] vfCorners = new Vector3[4];
         rectangle.GetWorldCorners(vfCorners);
-        foreach (Vector3 v in vfCorners)
-        {
-            Debug.Log("Viewfinder corner:" + v.ToString());
-        }
 
-        Vector3 taggedObjectCenter = RectTransformUtility.WorldToScreenPoint(camera, taggedObject.transform.position);
+        Vector3 taggedObjectCenter = RectTransformUtility.WorldToScreenPoint(
+            camera, obj.transform.position);
 
-        float toW = taggedObject.GetComponent<Renderer>().bounds.size.x;
-        float toH = taggedObject.GetComponent<Renderer>().bounds.size.y;
+        float toW = obj.GetComponent<Renderer>().bounds.size.x;
+        float toH = obj.GetComponent<Renderer>().bounds.size.y;
 
         float vfLeftX = vfCorners[0].x;
         float vfRightX = vfCorners[2].x;
@@ -148,18 +148,10 @@ public class TakeScreenshot : MonoBehaviour
         float toBottomY = taggedObjectCenter.y - (toH / 2);
         float toTopY = taggedObjectCenter.y + (toH / 2);
 
-        bool isTaggedObjectContained = toLeftX >= vfLeftX && toRightX <= vfRightX && toBottomY >= vfBottomY && toTopY <= vfTopY;
+        bool isObjectContained = toLeftX >= vfLeftX && toRightX <= vfRightX &&
+            toBottomY >= vfBottomY && toTopY <= vfTopY;
 
-        if (isTaggedObjectContained)
-        {
-            Debug.Log("TAGGED OBJECT IS CONTAINED!");
-            return taggedObject;
-        }
-        else
-        {
-            Debug.Log("TAGGED OBJECT IS NOT CONTAINED!");
-            return null;
-        }
+        return isObjectContained;
     }
 
     // Captures the desired part of the screen
@@ -194,12 +186,12 @@ public class TakeScreenshot : MonoBehaviour
         }
 
         Texture2D img = new Texture2D(w, h, TextureFormat.RGB24, false);
-        Debug.Log("Taking picture of: " + startX + ", " + finishX + ", " + startY + ", " + finishY);
+
         img.ReadPixels(new Rect(startX, startY, finishX, finishY), 0, 0);
         img.Apply();
         // convert to PNG
         byte[] imageBytes = img.EncodeToPNG();
-        // Display the image and allow the person to apply features to the fileName and then 
+        // Display the image and allow the person to apply features to the fileName and then
         string name = TagImage(imageBytes, w + 10, h + 10);
         Destroy(img);
     }
