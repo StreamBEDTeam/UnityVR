@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -559,7 +559,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 511913403}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -754,7 +754,6 @@ GameObject:
   - component: {fileID: 629624528}
   - component: {fileID: 629624527}
   - component: {fileID: 629624526}
-  - component: {fileID: 629624525}
   - component: {fileID: 629624529}
   m_Layer: 5
   m_Name: SizeWidthButton
@@ -782,30 +781,6 @@ RectTransform:
   m_AnchoredPosition: {x: -40, y: -10}
   m_SizeDelta: {x: 40, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &629624525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 629624523}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04c8d2ffcf3fd7b4497f808ee993a180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  screen: {fileID: 1700165693}
-  rectangle: {fileID: 1107236001}
-  recentImages:
-  - {fileID: 1312193343}
-  - {fileID: 2058001013}
-  - {fileID: 834244966}
-  LastImage: {fileID: 483090774}
-  confirmButtonPrefab: {fileID: 0}
-  deleteButtonPrefab: {fileID: 0}
-  featureTogglePrefab: {fileID: 0}
-  camera: {fileID: 534669904}
-  taggedObject: {fileID: 511913403}
-  pressed: 0
 --- !u!114 &629624526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1159,7 +1134,7 @@ GameObject:
   - component: {fileID: 1107236002}
   m_Layer: 5
   m_Name: CameraPanel
-  m_TagString: Untagged
+  m_TagString: CameraPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1233,22 +1208,20 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1107235997}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04c8d2ffcf3fd7b4497f808ee993a180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screen: {fileID: 1700165693}
-  rectangle: {fileID: 1107236001}
   recentImages:
   - {fileID: 834244966}
   - {fileID: 2058001013}
   - {fileID: 1312193343}
   LastImage: {fileID: 483090774}
-  confirmButtonPrefab: {fileID: 1610371564582670, guid: 64268f0c4d12216438c7b2e63711a7cd,
-    type: 2}
-  deleteButtonPrefab: {fileID: 1177696174565956, guid: 432a124ef81b0c24aa0a35f17dd5039d,
-    type: 2}
+  screen: {fileID: 0}
+  rectangle: {fileID: 0}
+  confirmButtonPrefab: {fileID: 0}
+  deleteButtonPrefab: {fileID: 0}
   featureTogglePrefab: {fileID: 0}
   camera: {fileID: 534669904}
   taggedObject: {fileID: 511913403}
@@ -1531,13 +1504,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04c8d2ffcf3fd7b4497f808ee993a180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  screen: {fileID: 1700165693}
-  rectangle: {fileID: 1107236001}
   recentImages:
   - {fileID: 1312193343}
   - {fileID: 2058001013}
   - {fileID: 834244966}
   LastImage: {fileID: 483090774}
+  screen: {fileID: 1700165693}
+  rectangle: {fileID: 1107236001}
   confirmButtonPrefab: {fileID: 1610371564582670, guid: 64268f0c4d12216438c7b2e63711a7cd,
     type: 2}
   deleteButtonPrefab: {fileID: 1177696174565956, guid: 432a124ef81b0c24aa0a35f17dd5039d,
@@ -1764,7 +1737,7 @@ GameObject:
   - component: {fileID: 1700165694}
   m_Layer: 5
   m_Name: CameraOverlay
-  m_TagString: Untagged
+  m_TagString: CameraOverlay
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2024,7 +1997,6 @@ GameObject:
   - component: {fileID: 2076810579}
   - component: {fileID: 2076810578}
   - component: {fileID: 2076810577}
-  - component: {fileID: 2076810576}
   - component: {fileID: 2076810575}
   m_Layer: 5
   m_Name: SizeHeightButton
@@ -2063,30 +2035,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20ccc4f422fe2a74dbc39138cdd30f87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2076810576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 2076810573}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04c8d2ffcf3fd7b4497f808ee993a180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  screen: {fileID: 1700165693}
-  rectangle: {fileID: 1107236001}
-  recentImages:
-  - {fileID: 1312193343}
-  - {fileID: 2058001013}
-  - {fileID: 834244966}
-  LastImage: {fileID: 483090774}
-  confirmButtonPrefab: {fileID: 0}
-  deleteButtonPrefab: {fileID: 0}
-  featureTogglePrefab: {fileID: 0}
-  camera: {fileID: 534669904}
-  taggedObject: {fileID: 511913403}
-  pressed: 0
 --- !u!114 &2076810577
 MonoBehaviour:
   m_ObjectHideFlags: 0

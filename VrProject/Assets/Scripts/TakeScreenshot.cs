@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor; // AssetDatabase in Start()
 using StreamBED.Backend.Helper;
 using StreamBED.Backend.Models.ProtocolModels;
 
@@ -51,25 +52,24 @@ public class TakeScreenshot : MonoBehaviour
         }
     }
 
-    public RectTransform screen;
     public static float PERCENTW = .5f; // Percent of the width of the screen that the rectangle occupies
     public static float PERCENTH = .5f; // Percent of the height of the screen that the rectangle occupies
-    public RectTransform rectangle; // The rectangle that outlines what area is being taken a photo of
     public RawImage[] recentImages = new RawImage[3]; // The last 3 images which are shown
     public List<ImageWithMetadata> allImages = new List<ImageWithMetadata>(); // All of the images taken, stored in a list
     public RawImage LastImage; // The last image that was taken, which displays immediately after taking the screenshot
 
+    public RectTransform screen; // Canvas
+    public RectTransform rectangle; // The rectangle that outlines what area is being taken a photo of
     public GameObject confirmButtonPrefab;
     public GameObject deleteButtonPrefab;
     public GameObject featureTogglePrefab;
-
     public new Camera camera;
 
     public GameObject taggedObject;
 
     public bool pressed = false;
 
-    public void Start()
+    void Start()
     {
         LastImage.color = new Vector4(0, 0, 0, 0);
         SetRectangle(rectangle);

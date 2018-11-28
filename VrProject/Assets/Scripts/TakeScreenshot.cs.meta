@@ -4,12 +4,16 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
+  - LastImage: {instanceID: 0}
   - screen: {instanceID: 0}
   - rectangle: {instanceID: 0}
-  - LastImage: {instanceID: 0}
-  - confirmButtonPrefab: {instanceID: 0}
-  - deleteButtonPrefab: {instanceID: 0}
-  - featureTogglePrefab: {instanceID: 0}
+  - confirmButtonPrefab: {fileID: 1610371564582670, guid: 64268f0c4d12216438c7b2e63711a7cd,
+      type: 2}
+  - deleteButtonPrefab: {fileID: 1177696174565956, guid: 432a124ef81b0c24aa0a35f17dd5039d,
+      type: 2}
+  - featureTogglePrefab: {fileID: 1619110163614866, guid: 19f5d98cd2653e24287f264af0965ac0,
+      type: 2}
+  - camera: {instanceID: 0}
   - taggedObject: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
