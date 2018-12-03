@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor; // AssetDatabase in Start()
 using StreamBED.Backend.Helper;
 using StreamBED.Backend.Models.ProtocolModels;
+using UnityEngine.SceneManagement;
+using System.IO;
 
 public class TakeScreenshot : MonoBehaviour
 {
@@ -59,6 +60,7 @@ public class TakeScreenshot : MonoBehaviour
     public RawImage LastImage; // The last image that was taken, which displays immediately after taking the screenshot
 
     public RectTransform screen; // Canvas
+    public string currScene;
     public RectTransform rectangle; // The rectangle that outlines what area is being taken a photo of
     public GameObject confirmButtonPrefab;
     public GameObject deleteButtonPrefab;
@@ -71,6 +73,29 @@ public class TakeScreenshot : MonoBehaviour
 
     void Start()
     {
+        Scene currentScene = SceneManager.GetActiveScene();
+        currScene = currentScene.name;
+
+        string dataPath = Application.dataPath + "/" + currScene;
+        if (!Directory.Exists(dataPath))
+        {
+            Directory.CreateDirectory(dataPath);
+        }
+
+        if (currScene == "Scene 1")
+        {
+            // TODO: Define areasOfInterest for Scene 1
+        }
+        else if (currScene == "Scence 2")
+        {
+            // TODO: Define areasOfInterest for Scene 2
+        }
+        else
+        {
+            areasOfInterest = new GameObject[0]; // Default is just an empty array
+        }
+
+        Debug.Log("In Scene " + currScene);
         LastImage.color = new Vector4(0, 0, 0, 0);
         SetRectangle(rectangle);
         DisplayImages(recentImages);
@@ -217,7 +242,7 @@ public class TakeScreenshot : MonoBehaviour
 
         string timestamp = System.DateTime.Now.ToString("MM-dd-yyy-HH-mm-ss");
         string fileName = name + timestamp + ".png";
-        string pathToSave = Application.dataPath + "/Images/" + fileName;
+        string pathToSave = Application.dataPath + "/" + currScene + "/" + fileName;
         int w = (int)(Screen.width * PERCENTW);
         int h = (int)(Screen.height * PERCENTH);
         AddImage(imageValue, w, h);
@@ -229,6 +254,9 @@ public class TakeScreenshot : MonoBehaviour
         System.IO.File.WriteAllBytes(pathToSave, imageBytes);
         while (!wait.isDone) ;
         yield return wait;
+        pathToSave = Application.dataPath + "/Images/" + fileName;
+        wait = new WWW(pathToSave);
+        System.IO.File.WriteAllBytes(pathToSave, imageBytes);
         Debug.Log("Confirmed");
         this.PrintAllImages();
     }
@@ -254,8 +282,8 @@ public class TakeScreenshot : MonoBehaviour
 
     IEnumerator PickFeatures(byte[] img)
     {
-        Keyword[] bKey = BankStabilityModel.getKeywords();
-        Keyword[] eKey = EpifaunalSubstrateModel.getKeywords();
+        Keyword[] bKey = BankStabilityModel.GetKeywords();
+        Keyword[] eKey = EpifaunalSubstrateModel.GetKeywords();
         Keyword[] featureNames = new Keyword[bKey.Length + eKey.Length];
         bKey.CopyTo(featureNames, 0);
         eKey.CopyTo(featureNames, bKey.Length);
@@ -284,7 +312,7 @@ public class TakeScreenshot : MonoBehaviour
             featureObjs[i].transform.localScale = new Vector3(1, 1, 1);
             featureObjs[i].transform.localPosition = featureObjs[i].transform.localPosition + new Vector3(0, distBetween * (i + (float).5), 0);
             featureToggles[i] = featureObjs[i].GetComponent<Toggle>();
-            featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].GetContent();
+            featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].Content;
         }
 
         object[] parms = new object[3] { img, featureToggles, featureNames };
@@ -315,7 +343,7 @@ public class TakeScreenshot : MonoBehaviour
     public void AddImage(ImageWithMetadata img, int w, int h)//Image img)
     {
         Texture2D imgTexture = new Texture2D(w, h);
-        imgTexture.LoadImage(img.GetPhoto());
+        imgTexture.LoadImage(img.Data);
         if (allImages.Count >= 2)
             recentImages[2].texture = recentImages[1].texture;
 
