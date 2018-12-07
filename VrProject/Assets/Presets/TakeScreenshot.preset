@@ -53,6 +53,10 @@ Preset:
     value: 
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: currScene
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: rectangle
     value: 
     objectReference: {fileID: 0}
@@ -76,8 +80,8 @@ Preset:
     value: 
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: taggedObject
-    value: 
+    propertyPath: areasOfInterest.Array.size
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: pressed

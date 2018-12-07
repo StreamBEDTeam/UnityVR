@@ -6,6 +6,7 @@ using StreamBED.Backend.Helper;
 using StreamBED.Backend.Models.ProtocolModels;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Linq;
 
 public class TakeScreenshot : MonoBehaviour
 {
@@ -67,12 +68,15 @@ public class TakeScreenshot : MonoBehaviour
     public GameObject featureTogglePrefab;
     public new Camera camera;
 
+    public ImageSerialization imgSer;
+
     public GameObject[] areasOfInterest;
 
     public bool pressed = false;
 
     void Start()
     {
+        imgSer = new ImageSerialization();
         Scene currentScene = SceneManager.GetActiveScene();
         currScene = currentScene.name;
 
@@ -82,23 +86,30 @@ public class TakeScreenshot : MonoBehaviour
             Directory.CreateDirectory(dataPath);
         }
 
-        if (currScene == "Scene 1")
-        {
-            // TODO: Define areasOfInterest for Scene 1
-        }
-        else if (currScene == "Scence 2")
-        {
-            // TODO: Define areasOfInterest for Scene 2
-        }
-        else
-        {
-            areasOfInterest = new GameObject[0]; // Default is just an empty array
-        }
+        areasOfInterest = defineAreasOfInterest();
 
         Debug.Log("In Scene " + currScene);
         LastImage.color = new Vector4(0, 0, 0, 0);
         SetRectangle(rectangle);
         DisplayImages(recentImages);
+    }
+
+    private GameObject[] defineAreasOfInterest()
+    {
+        if (currScene == "Scene 1")
+        {
+            // TODO: Define areasOfInterest for Scene 1
+            return new GameObject[0];
+        }
+        else if (currScene == "Scence 2")
+        {
+            // TODO: Define areasOfInterest for Scene 2
+            return new GameObject[0];
+        }
+        else
+        {
+            return new GameObject[0]; // Default is just an empty array
+        }
     }
 
     private void SetRectangle(RectTransform r)
@@ -145,12 +156,18 @@ public class TakeScreenshot : MonoBehaviour
 
     public void TakeAShot()
     {
+        List<int> ret = new List<int>();
+        int currArea = 1;
         foreach (GameObject obj in areasOfInterest) {
             if (IsObjectInViewFinder(obj)) {
+                ret.Add(currArea);
                 Debug.Log("Object " + obj.name + " is in viewfinder!");
             }
+            currArea++;
         }
-        StartCoroutine("CaptureMiddle");
+
+        Debug.Log(ret.Count);
+        StartCoroutine("CaptureMiddle", ret);
     }
 
     public bool IsObjectInViewFinder(GameObject obj) {
@@ -181,7 +198,7 @@ public class TakeScreenshot : MonoBehaviour
 
     // Captures the desired part of the screen
     // Desired part based on PERCENT_X and PERCENT_Y
-    IEnumerator CaptureMiddle()
+    IEnumerator CaptureMiddle(List<int> areaOfInt)
     {
         yield return new WaitForEndOfFrame();
         int w = (int)(Screen.width * PERCENTW);
@@ -217,7 +234,7 @@ public class TakeScreenshot : MonoBehaviour
         // convert to PNG
         byte[] imageBytes = img.EncodeToPNG();
         // Display the image and allow the person to apply features to the fileName and then
-        string name = TagImage(imageBytes, w + 10, h + 10);
+        TagImage(imageBytes, w + 10, h + 10, areaOfInt.ToArray());
         Destroy(img);
     }
 
@@ -227,6 +244,7 @@ public class TakeScreenshot : MonoBehaviour
         byte[] imageBytes = (byte[]) parms[0];
         Toggle[] features = (Toggle[]) parms[1];
         Keyword[] keywords = (Keyword[]) parms[2];
+        int[] areasOfInterest = (int[]) parms[3];
 
         string name = "";
         ImageWithMetadata imageValue = new ImageWithMetadata(imageBytes);
@@ -239,10 +257,9 @@ public class TakeScreenshot : MonoBehaviour
                 imageValue.AddKeyword(keywords[i]);
             }
         }
-
         string timestamp = System.DateTime.Now.ToString("MM-dd-yyy-HH-mm-ss");
         string fileName = name + timestamp + ".png";
-        string pathToSave = Application.dataPath + "/" + currScene + "/" + fileName;
+        string pathToSave = Application.dataPath + "/" + currScene;
         int w = (int)(Screen.width * PERCENTW);
         int h = (int)(Screen.height * PERCENTH);
         AddImage(imageValue, w, h);
@@ -251,12 +268,83 @@ public class TakeScreenshot : MonoBehaviour
         while (!wait.isDone) ;
         yield return wait;
         wait = new WWW(pathToSave);
-        System.IO.File.WriteAllBytes(pathToSave, imageBytes);
-        while (!wait.isDone) ;
+        Debug.Log(areasOfInterest.Length);
+        if (areasOfInterest.Length == 0)
+        {
+            string path = Application.dataPath + "/" + currScene + "/Other";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            if (imageValue.Keywords.Count == 0)
+            {
+                string newPath = path + "/None";
+                Debug.Log(newPath);
+                if (!Directory.Exists(newPath))
+                {
+                    Directory.CreateDirectory(newPath);
+                }
+                newPath += "/" + fileName;
+                File.WriteAllBytes(newPath, imageBytes);
+            }
+            else
+            {
+                for (int i = 0; i < imageValue.Keywords.Count; i++)
+                {
+                    string newPath = path + "/" + imageValue.Keywords[i].Content;
+                    Debug.Log(newPath);
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    newPath += "/" + fileName;
+                    File.WriteAllBytes(newPath, imageBytes);
+                }
+            }
+        }
+        else
+        {
+            foreach (int j in areasOfInterest)
+            {
+                string path = Application.dataPath + "/" + currScene + "/Area" + j;
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (imageValue.Keywords.Count == 0)
+                {
+                    string newPath = path + "/None";
+                    Debug.Log(newPath);
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    newPath += "/" + fileName;
+                    File.WriteAllBytes(newPath, imageBytes);
+                }
+                else
+                {
+                    for (int i = 0; i < imageValue.Keywords.Count; i++)
+                    {
+                        string newPath = path + "/" + imageValue.Keywords[i].Content;
+                        Debug.Log(newPath);
+                        if (!Directory.Exists(newPath))
+                        {
+                            Directory.CreateDirectory(newPath);
+                        }
+                        newPath += "/" + fileName;
+                        File.WriteAllBytes(newPath, imageBytes);
+                    }
+                }
+            }
+        }
+        while (!wait.isDone);
         yield return wait;
         pathToSave = Application.dataPath + "/Images/" + fileName;
         wait = new WWW(pathToSave);
-        System.IO.File.WriteAllBytes(pathToSave, imageBytes);
+        File.WriteAllBytes(pathToSave, imageBytes);
         Debug.Log("Confirmed");
         this.PrintAllImages();
     }
@@ -267,21 +355,26 @@ public class TakeScreenshot : MonoBehaviour
         Debug.Log("Deleted");
     }
 
-    public string TagImage(byte[] b, int w, int h)
+    public void TagImage(byte[] b, int w, int h, int[] areasOfInterest)
     {
+        Debug.Log(areasOfInterest);
         LastImage.rectTransform.sizeDelta = new Vector2(w, h);
 
         Texture2D imgTexture = new Texture2D(w, h);
         imgTexture.LoadImage(b);
         LastImage.texture = imgTexture;
         //button.onClick.AddListener(() => KeepPhoto());
-
-        StartCoroutine("PickFeatures", b);
-        return "";
+        object[] param = new object[2][]{ b.Cast<object>().ToArray(), areasOfInterest.Cast<object>().ToArray()};
+        StartCoroutine("PickFeatures", param);
     }
 
-    IEnumerator PickFeatures(byte[] img)
+    IEnumerator PickFeatures(object[][] param)
     {
+        object[] var = param[0];
+        byte[] img = var.Cast<byte>().ToArray();
+        var = param[1];
+        int[] areasOfInterest = var.Cast<int>().ToArray();
+
         Keyword[] bKey = BankStabilityModel.GetKeywords();
         Keyword[] eKey = EpifaunalSubstrateModel.GetKeywords();
         Keyword[] featureNames = new Keyword[bKey.Length + eKey.Length];
@@ -315,7 +408,7 @@ public class TakeScreenshot : MonoBehaviour
             featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].Content;
         }
 
-        object[] parms = new object[3] { img, featureToggles, featureNames };
+        object[] parms = new object[4] { img, featureToggles, featureNames, areasOfInterest };
         confirmButton.onClick.AddListener(() => StartCoroutine("ConfirmPhoto", parms));
 
         LastImage.color = new Vector4(255, 255, 255, 255); // Make visible
@@ -351,6 +444,8 @@ public class TakeScreenshot : MonoBehaviour
             recentImages[1].texture = recentImages[0].texture;
 
         recentImages[0].texture = imgTexture;
+        imgSer.AddImage(img);
+        //imgSer.SerializeImage();
         allImages.Add(img);
     }
 
