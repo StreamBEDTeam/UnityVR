@@ -56,7 +56,7 @@ public class TakeScreenshot : MonoBehaviour
 
     public static float PERCENTW = .5f; // Percent of the width of the screen that the rectangle occupies
     public static float PERCENTH = .5f; // Percent of the height of the screen that the rectangle occupies
-    public RawImage[] recentImages = new RawImage[3]; // The last 3 images which are shown
+    public RawImage[] recentImages; // The last 3 images which are shown
     public List<ImageWithMetadata> allImages = new List<ImageWithMetadata>(); // All of the images taken, stored in a list
     public RawImage LastImage; // The last image that was taken, which displays immediately after taking the screenshot
 
@@ -68,7 +68,7 @@ public class TakeScreenshot : MonoBehaviour
     public GameObject featureTogglePrefab;
     public new Camera camera;
 
-    public ImageSerialization imgSer;
+    //public ImageSerialization imgSer;
 
     public GameObject[] areasOfInterest;
 
@@ -76,7 +76,7 @@ public class TakeScreenshot : MonoBehaviour
 
     void Start()
     {
-        imgSer = new ImageSerialization();
+        //imgSer = new ImageSerialization();
         Scene currentScene = SceneManager.GetActiveScene();
         currScene = currentScene.name;
 
@@ -86,15 +86,15 @@ public class TakeScreenshot : MonoBehaviour
             Directory.CreateDirectory(dataPath);
         }
 
-        areasOfInterest = defineAreasOfInterest();
+        areasOfInterest = DefineAreasOfInterest();
 
         Debug.Log("In Scene " + currScene);
         LastImage.color = new Vector4(0, 0, 0, 0);
         SetRectangle(rectangle);
-        DisplayImages(recentImages);
+        DisplayImages();
     }
 
-    private GameObject[] defineAreasOfInterest()
+    private GameObject[] DefineAreasOfInterest()
     {
         if (currScene == "Scene 1")
         {
@@ -166,7 +166,6 @@ public class TakeScreenshot : MonoBehaviour
             currArea++;
         }
 
-        Debug.Log(ret.Count);
         StartCoroutine("CaptureMiddle", ret);
     }
 
@@ -263,12 +262,11 @@ public class TakeScreenshot : MonoBehaviour
         int w = (int)(Screen.width * PERCENTW);
         int h = (int)(Screen.height * PERCENTH);
         AddImage(imageValue, w, h);
-        DisplayImages(recentImages);
+        DisplayImages();
         WWW wait = new WWW(fileName);
         while (!wait.isDone) ;
         yield return wait;
         wait = new WWW(pathToSave);
-        Debug.Log(areasOfInterest.Length);
         if (areasOfInterest.Length == 0)
         {
             string path = Application.dataPath + "/" + currScene + "/Other";
@@ -280,7 +278,6 @@ public class TakeScreenshot : MonoBehaviour
             if (imageValue.Keywords.Count == 0)
             {
                 string newPath = path + "/None";
-                Debug.Log(newPath);
                 if (!Directory.Exists(newPath))
                 {
                     Directory.CreateDirectory(newPath);
@@ -293,7 +290,6 @@ public class TakeScreenshot : MonoBehaviour
                 for (int i = 0; i < imageValue.Keywords.Count; i++)
                 {
                     string newPath = path + "/" + imageValue.Keywords[i].Content;
-                    Debug.Log(newPath);
                     if (!Directory.Exists(newPath))
                     {
                         Directory.CreateDirectory(newPath);
@@ -316,7 +312,6 @@ public class TakeScreenshot : MonoBehaviour
                 if (imageValue.Keywords.Count == 0)
                 {
                     string newPath = path + "/None";
-                    Debug.Log(newPath);
                     if (!Directory.Exists(newPath))
                     {
                         Directory.CreateDirectory(newPath);
@@ -329,7 +324,6 @@ public class TakeScreenshot : MonoBehaviour
                     for (int i = 0; i < imageValue.Keywords.Count; i++)
                     {
                         string newPath = path + "/" + imageValue.Keywords[i].Content;
-                        Debug.Log(newPath);
                         if (!Directory.Exists(newPath))
                         {
                             Directory.CreateDirectory(newPath);
@@ -346,7 +340,6 @@ public class TakeScreenshot : MonoBehaviour
         wait = new WWW(pathToSave);
         File.WriteAllBytes(pathToSave, imageBytes);
         Debug.Log("Confirmed");
-        this.PrintAllImages();
     }
 
     public void DeletePhoto()
@@ -444,15 +437,20 @@ public class TakeScreenshot : MonoBehaviour
             recentImages[1].texture = recentImages[0].texture;
 
         recentImages[0].texture = imgTexture;
-        imgSer.AddImage(img);
+        //imgSer.AddImage(img);
         //imgSer.SerializeImage();
         allImages.Add(img);
     }
 
-    public void DisplayImages(RawImage[] recentImages)
+    public void DisplayImages()
     {
+        Debug.Log("Begin DisplayImages");
+        Debug.Log("Count: " + allImages.Count);
         if (allImages.Count > 0)
+        {
+            Debug.Log("Hi");
             recentImages[0].color = new Vector4(255, 255, 255, 255);
+        }
         else
             recentImages[0].color = new Vector4(0, 0, 0, 0); // Make transparent if no image
 
@@ -467,8 +465,8 @@ public class TakeScreenshot : MonoBehaviour
             recentImages[2].color = new Vector4(0, 0, 0, 0); // Make transparent if no image
     }
 
-    public void PrintAllImages()
+    /*public void DeserializeAllImages()
     {
-        // TODO: Print all images (test to see if allImages is working properly
-    }
+        imgSer.DeserializeImage();
+    }*/
 }

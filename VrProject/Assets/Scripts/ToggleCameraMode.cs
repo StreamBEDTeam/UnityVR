@@ -7,6 +7,7 @@ public class ToggleCameraMode : MonoBehaviour {
 
     public void SwitchChange()
     {
+        Debug.Log("Switched toggle");
         toggleSwitch = gameObject.GetComponent<Toggle>().isOn;
     }
 
