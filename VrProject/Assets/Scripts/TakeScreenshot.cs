@@ -11,49 +11,6 @@ using System.Linq;
 public class TakeScreenshot : MonoBehaviour
 {
 
-    public class Image
-    {
-        private byte[] pixels;
-        private string pathName;
-        private int width;
-        private int height;
-        List<string> features;
-
-        public Image(string path, byte[] pix, int w, int h)
-        {
-            this.pixels = pix;
-            this.pathName = path;
-            this.height = h;
-            this.width = w;
-            this.features = new List<string>();
-        }
-
-        public string getPath()
-        {
-            return pathName;
-        }
-
-        public byte[] getPixels()
-        {
-            return pixels;
-        }
-
-        public int getW()
-        {
-            return width;
-        }
-
-        public int getH()
-        {
-            return height;
-        }
-
-        public string[] getFeatures()
-        {
-            return (string[])features.ToArray();
-        }
-    }
-
     public static float PERCENTW = .5f; // Percent of the width of the screen that the rectangle occupies
     public static float PERCENTH = .5f; // Percent of the height of the screen that the rectangle occupies
     public RawImage[] recentImages; // The last 3 images which are shown
@@ -67,6 +24,7 @@ public class TakeScreenshot : MonoBehaviour
     public GameObject deleteButtonPrefab;
     public GameObject featureTogglePrefab;
     public new Camera camera;
+    public Toggle cameraModeToggle;
 
     //public ImageSerialization imgSer;
 
@@ -346,6 +304,7 @@ public class TakeScreenshot : MonoBehaviour
     {
         pressed = true;
         Debug.Log("Deleted");
+
     }
 
     public void TagImage(byte[] b, int w, int h, int[] areasOfInterest)
@@ -401,11 +360,32 @@ public class TakeScreenshot : MonoBehaviour
             featureToggles[i].GetComponentInChildren<Text>().text = featureNames[i].Content;
         }
 
-        object[] parms = new object[4] { img, featureToggles, featureNames, areasOfInterest };
+        object[] parms = new object[11] { img, featureToggles, featureNames, areasOfInterest, goButton, goButton2, deleteButton, confirmButton, len, featureObjs, featureToggles };
         confirmButton.onClick.AddListener(() => StartCoroutine("ConfirmPhoto", parms));
+        if (cameraModeToggle == null)
+        {
+            Debug.Log("Forgot to initialize CameraModeToggle");
+        }
+        else
+        {
+            cameraModeToggle.onValueChanged.AddListener((value) =>
+            {
+                deleteButtons(goButton, goButton2, deleteButton, confirmButton, len, featureObjs, featureToggles);
+                LastImage.color = new Vector4(0, 0, 0, 0);
+            });
+        }
 
         LastImage.color = new Vector4(255, 255, 255, 255); // Make visible
         yield return new WaitUntil(() => pressed);
+        Debug.Log("About to delete the buttons");
+
+        deleteButtons(goButton, goButton2, deleteButton, confirmButton, len, featureObjs, featureToggles);
+
+        LastImage.color = new Vector4(0, 0, 0, 0); // make transparent
+    }
+
+    public void deleteButtons(GameObject goButton, GameObject goButton2, Button deleteButton, Button confirmButton, int len, GameObject[] featureObjs, Toggle[] featureToggles)
+    {
         pressed = false;
         Destroy(confirmButton);
         Destroy(goButton);
@@ -416,8 +396,6 @@ public class TakeScreenshot : MonoBehaviour
             Destroy(featureObjs[i]);
             Destroy(featureToggles[i]);
         }
-
-        LastImage.color = new Vector4(0, 0, 0, 0); // make transparent
     }
 
     IEnumerator DisplayFeature()

@@ -1088,7 +1088,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 0.8117647}
+  m_Color: {r: 0.61960787, g: 0.61960787, b: 0.61960787, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1218,13 +1218,17 @@ MonoBehaviour:
   - {fileID: 2058001013}
   - {fileID: 1312193343}
   LastImage: {fileID: 483090774}
-  screen: {fileID: 0}
+  screen: {fileID: 1700165693}
   currScene: 
-  rectangle: {fileID: 0}
-  confirmButtonPrefab: {fileID: 0}
-  deleteButtonPrefab: {fileID: 0}
-  featureTogglePrefab: {fileID: 0}
+  rectangle: {fileID: 1107236001}
+  confirmButtonPrefab: {fileID: 1610371564582670, guid: 64268f0c4d12216438c7b2e63711a7cd,
+    type: 2}
+  deleteButtonPrefab: {fileID: 1177696174565956, guid: 432a124ef81b0c24aa0a35f17dd5039d,
+    type: 2}
+  featureTogglePrefab: {fileID: 1619110163614866, guid: 19f5d98cd2653e24287f264af0965ac0,
+    type: 2}
   camera: {fileID: 534669904}
+  cameraModeToggle: {fileID: 1511488407}
   areasOfInterest: []
   pressed: 0
 --- !u!1 &1259753084
@@ -1396,7 +1400,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7607844, g: 0.7607844, b: 0.7607844, a: 1}
+  m_Color: {r: 0.7607844, g: 0.7607844, b: 0.7607844, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1568,6 +1572,7 @@ MonoBehaviour:
   featureTogglePrefab: {fileID: 1619110163614866, guid: 19f5d98cd2653e24287f264af0965ac0,
     type: 2}
   camera: {fileID: 534669904}
+  cameraModeToggle: {fileID: 1511488407}
   areasOfInterest: []
   pressed: 0
 --- !u!114 &1379887600
@@ -1591,6 +1596,7 @@ GameObject:
   - component: {fileID: 1511488406}
   - component: {fileID: 1511488407}
   - component: {fileID: 1511488408}
+  - component: {fileID: 1511488409}
   m_Layer: 5
   m_Name: ToggleCameraMode
   m_TagString: Untagged
@@ -1773,6 +1779,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20ccc4f422fe2a74dbc39138cdd30f87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1511488409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1511488405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04c8d2ffcf3fd7b4497f808ee993a180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recentImages:
+  - {fileID: 834244966}
+  - {fileID: 2058001013}
+  - {fileID: 1312193343}
+  LastImage: {fileID: 483090774}
+  screen: {fileID: 1700165693}
+  currScene: 
+  rectangle: {fileID: 1107236001}
+  confirmButtonPrefab: {fileID: 1610371564582670, guid: 64268f0c4d12216438c7b2e63711a7cd,
+    type: 2}
+  deleteButtonPrefab: {fileID: 1177696174565956, guid: 432a124ef81b0c24aa0a35f17dd5039d,
+    type: 2}
+  featureTogglePrefab: {fileID: 1619110163614866, guid: 19f5d98cd2653e24287f264af0965ac0,
+    type: 2}
+  camera: {fileID: 534669904}
+  cameraModeToggle: {fileID: 1511488407}
+  areasOfInterest: []
+  pressed: 0
 --- !u!1 &1700165689
 GameObject:
   m_ObjectHideFlags: 0
@@ -2013,7 +2048,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 1}
+  m_Color: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
